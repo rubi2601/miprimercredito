@@ -237,17 +237,17 @@
         
         <div class="form-group">
             <label>Ingresos mensuales</label>
-            <input type="text" id="ingresos" placeholder="$" oninput="formatNumber(this)">
+            <input type="text" id="ingresos" placeholder="$" oninput="this.value = this.value.replace(/[^0-9]/g, ''); formatNumber(this)">
         </div>
         
         <div class="form-group">
             <label>Gastos mensuales</label>
-            <input type="text" id="gastos" placeholder="$" oninput="formatNumber(this)">
+            <input type="text" id="gastos" placeholder="$" oninput="this.value = this.value.replace(/[^0-9]/g, ''); formatNumber(this)">
         </div>
         
         <div class="form-group">
             <label>Saldo actual en tu cuenta NEQUI</label>
-            <input type="text" id="saldo" placeholder="$" oninput="formatNumber(this)">
+            <input type="text" id="saldo" placeholder="$" oninput="this.value = this.value.replace(/[^0-9]/g, ''); formatNumber(this)">
         </div>
         
         <p style="font-size: 16px; font-weight: 500; margin: 20px 0 10px;">¿En cuánto tiempo quieres pagar tu préstamo?</p>
@@ -295,7 +295,7 @@
         
         let saldoValidado = false;
         
-        // TASA DE INTERÉS: 0.5% mensual
+        // TASA DE INTERÉS: 3% mensual
         const TASA_INTERES = 0.03;
         
         // Función para calcular cuota con interés compuesto (Sistema Francés)

